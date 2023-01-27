@@ -8,6 +8,14 @@ function Snake () {
 function Prijmout_smajlik () {
     images.iconImage(IconNames.No).showImage(0, 2000)
 }
+control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_B, EventBusValue.MICROBIT_BUTTON_EVT_CLICK, function () {
+    Stisk_A = false
+    Stisk_B = true
+})
+control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_A, EventBusValue.MICROBIT_BUTTON_EVT_CLICK, function () {
+    Stisk_A = true
+    Stisk_B = false
+})
 function Kamen_nuzky_papir () {
     radio.setGroup(1)
     radio.sendValue("test", -1)
@@ -83,18 +91,10 @@ function Kamen_nuzky_papir () {
         Reset_stisku_AB()
     }
 }
-control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_A, EventBusValue.MICROBIT_BUTTON_EVT_DOWN, function () {
-    Stisk_A = true
-    Stisk_B = false
-})
 function Pozdrav (_Jmeno: string) {
     basic.showString("Ahoj," + _Jmeno)
     basic.showString("Zvol appku")
 }
-control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_B, EventBusValue.MICROBIT_BUTTON_EVT_DOWN, function () {
-    Stisk_A = false
-    Stisk_B = true
-})
 function Kompas () {
     input.calibrateCompass()
     while (true) {
@@ -116,41 +116,57 @@ function Reset_stisku_AB () {
 radio.onReceivedValue(function (name, value) {
     typZpravy = name
     ciselnaZprava = value
+    if (typZpravy == listTypuZprav[1]) {
+        prijatySmajlik = ciselnaZprava
+    }
 })
 control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_AB, EventBusValue.MICROBIT_BUTTON_EVT_CLICK, function () {
     Stisk_A = true
     Stisk_B = true
 })
 function Poslat_smajlik () {
-    radio.setGroup(1)
+    rolovaniNabidkou = 0
     Reset_stisku_AB()
-    while (!(Stisk_A) && !(Stisk_B)) {
-        Reset_stisku_AB()
+    radio.setGroup(1)
+    while (true) {
+        Vymaz_zprav()
+        listSmajliku[rolovaniNabidkou].showImage(0, 200)
         if (Stisk_B && !(Stisk_A)) {
             Reset_stisku_AB()
-            if (rolovaniNabidkou == listIkon.length - 1) {
+            if (rolovaniNabidkou == listSmajliku.length - 1) {
                 rolovaniNabidkou = 0
             } else {
                 rolovaniNabidkou = rolovaniNabidkou + 1
             }
         }
+        if (Stisk_A && !(Stisk_B)) {
+            Reset_stisku_AB()
+            radio.sendValue(listTypuZprav[1], rolovaniNabidkou)
+        }
+        if (Stisk_A && Stisk_B) {
+            akceProbehla = false
+            Vymaz_zprav()
+            break;
+        }
     }
+    rolovaniNabidkou = 0
 }
-let Stisk_B = false
-let Stisk_A = false
 let dobaStridaniAnimace = 0
 let akceProbehla = false
 let zvolenyTah = 0
 let listVyhraProhra: Image[] = []
 let listKamNuzPap: Image[] = []
+let Stisk_B = false
+let Stisk_A = false
 let ciselnaZprava = 0
 let typZpravy = ""
 let rolovaniNabidkou = 0
+let prijatySmajlik = 0
 let listTypuZprav: string[] = []
-let listIkon: Image[] = []
+let listSmajliku: Image[] = []
 let listJmena = ["LUKY", "TERKO"]
 let Jmeno = listJmena[0]
-listIkon = [
+let listIkon = [
 images.createBigImage(`
     # # # # # . . # . .
     # # . # # . # . # .
@@ -194,7 +210,7 @@ images.createBigImage(`
     . . . . . . # . . .
     `)
 ]
-let listSmajliku = [
+listSmajliku = [
 images.iconImage(IconNames.Happy),
 images.iconImage(IconNames.Sad),
 images.iconImage(IconNames.Surprised),
@@ -203,12 +219,11 @@ images.iconImage(IconNames.Ghost),
 images.iconImage(IconNames.Yes)
 ]
 listTypuZprav = ["KaNuPa", "Smajl"]
+prijatySmajlik = -1
 rolovaniNabidkou = 0
-Vymaz_zprav()
 Reset_stisku_AB()
-Pozdrav(Jmeno)
 basic.forever(function () {
-    listIkon[rolovaniNabidkou].scrollImage(5, 500)
+    listIkon[rolovaniNabidkou].scrollImage(5, 400)
     if (Stisk_B && !(Stisk_A)) {
         Reset_stisku_AB()
         if (rolovaniNabidkou == listIkon.length - 1) {
@@ -231,8 +246,6 @@ basic.forever(function () {
             Sirena()
         } else if (rolovaniNabidkou == 5) {
             Snake()
-        } else {
-        	
         }
         rolovaniNabidkou = 0
     }
