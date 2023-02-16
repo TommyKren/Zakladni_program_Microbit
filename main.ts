@@ -1,3 +1,6 @@
+function Vymaz_smajliku () {
+    prijatySmajlik = -1
+}
 function Vymaz_zprav () {
     typZpravy = ""
     ciselnaZprava = 0
@@ -6,7 +9,32 @@ function Snake () {
     images.iconImage(IconNames.No).showImage(0, 2000)
 }
 function Prijmout_smajlik () {
-    images.iconImage(IconNames.No).showImage(0, 2000)
+    while (prijatySmajlik == -1) {
+        images.createBigImage(`
+            . # # # . . # # # .
+            . # # # . . # . # .
+            . . # . . . . # . .
+            . # . # . . # # # .
+            . # # # . . # # # .
+            `).scrollImage(5, 300)
+        images.createImage(`
+            . . . . .
+            # # . # #
+            # . # . #
+            # # . # #
+            . . . . .
+            `).scrollImage(5, 300)
+        if (Stisk_A && Stisk_B) {
+            return
+        }
+    }
+    while (true) {
+        listSmajliku[prijatySmajlik].showImage(0, 200)
+        if (Stisk_A && Stisk_B) {
+            Vymaz_smajliku()
+            return
+        }
+    }
 }
 control.onEvent(EventBusSource.MICROBIT_ID_BUTTON_B, EventBusValue.MICROBIT_BUTTON_EVT_CLICK, function () {
     Stisk_A = false
@@ -221,6 +249,7 @@ images.iconImage(IconNames.Yes)
 listTypuZprav = ["KaNuPa", "Smajl"]
 prijatySmajlik = -1
 rolovaniNabidkou = 0
+Pozdrav(Jmeno)
 Reset_stisku_AB()
 basic.forever(function () {
     listIkon[rolovaniNabidkou].scrollImage(5, 400)
