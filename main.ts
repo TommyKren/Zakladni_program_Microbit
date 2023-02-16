@@ -135,7 +135,26 @@ function Kompas () {
     }
 }
 function Sirena () {
-    images.iconImage(IconNames.No).showImage(0, 2000)
+    while (true) {
+        music.playSoundEffect(music.builtinSoundEffect(soundExpression.hello), SoundExpressionPlayMode.InBackground)
+        images.createBigImage(`
+            . . . . . # . # . #
+            . . # . . . . # . .
+            . # # # . # # . # #
+            . . # . . . . # . .
+            . . . . . # . # . #
+            `).scrollImage(5, 200)
+        images.createImage(`
+            # . # . #
+            . # # # .
+            # # . # #
+            . # # # .
+            # . # . #
+            `).scrollImage(5, 200)
+        if (Stisk_A && Stisk_B) {
+            break;
+        }
+    }
 }
 function Reset_stisku_AB () {
     Stisk_A = false
